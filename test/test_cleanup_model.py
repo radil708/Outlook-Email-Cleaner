@@ -63,6 +63,27 @@ class test_cleanup_model(unittest.TestCase):
 		model.set_target_start_date("2/28/2022")
 		self.assertRaises(DateConversionError, model.set_target_end_date, "06/82/2022")
 
+	def test_clear_deletion_conditions(self):
+		"""
+		Testing clear_deleting_conditions method
+		:return:
+		"""
+
+		model = self.model
+
+		model.set_target_sender_email("example@email.com")
+		model.set_target_subject_keyphrase("keyword")
+		model.set_target_start_date("2/28/2022")
+		model.set_target_end_date("06/18/2022")
+
+		model.clear_deleting_conditions()
+
+		self.assertEqual(None, model.target_sender_email)
+		self.assertEqual(None, model.target_subject_keyphrase)
+		self.assertEqual(None, model.target_start_date)
+		self.assertEqual(None, model.target_end_date)
+
+
 def main():
 	unittest.main(verbosity=3)
 
