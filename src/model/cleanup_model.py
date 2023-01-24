@@ -26,10 +26,15 @@ class cleanup_model():
 		self.target_start_date = None  # datetime obj
 		self.target_end_date = None  # datetime obj
 		self.target_subject_keyphrase = None  # string
+
+		# if adding new conditions, new matching function must be added to the end of this list
+		self.all_matching_functions = [self.is_match_for_sender,
+									   self.is_within_date_range,
+									   self.is_match_for_subject]
 		self.delete_counter = 0
+		self.emails_with_missing_attributes_count = 0
 
 		###################### Verification Related Varibales ######################
-
 		# dictionary used to hold information for confirmation string question
 		# key: 0, value : target_sender_email
 		# key: 1, value : target_start_date to target_end_date
@@ -44,6 +49,25 @@ class cleanup_model():
 											 2: "has the keyword/keyphrase in the subject:"}
 		self.deletion_confirmation_str = ""
 		self.verified_conditions = False  # Must be set to true before being able to look for matching emails
+
+		###################### Outlook Application Related Variables ######################
+		self.com_obj = None  # stores COM
+		self.outlook_connection = None  # stores namespace
+		self.all_mailboxes = None  # helper variable to mailbox_options attribute
+		self.mailbox_options = {}  # all available emails signed in on in outlook application
+		self.selected_email = None  # email whose inbox items will be deleted
+		self.selected_directory = None  # access to the inbox folder
+		self.chosen_mailbox_option = None
+
+	def __new__(cls):
+		"""
+		This is used to enforce the singleton pattern. If a cleanup_model instance
+		has already been created, then it will return the instance and not
+		a new instance, otherwise it will create a new instance of cleanup_model
+		"""
+		if not hasattr(cls, 'instance'):
+			cls.instance = super(cleanup_model, cls).__new__(cls)
+		return cls.instance
 
 	def set_target_sender_email(self, email: str) -> None:
 		'''
@@ -170,3 +194,164 @@ class cleanup_model():
 
 		self.deletion_confirmation_str = self.deletion_confirmation_str.rstrip(" AND")
 		self.verified_conditions = True
+
+	def connect_to_outlook(self) -> None:
+		"""
+		Sets com_obj and outlook_connection attributes. MUST be run before
+		set_all_mailboxes.
+		:return: None
+		"""
+		# create an instance of COM object
+		# COM object allows us to interact with other programs
+		self.com_obj = client.Dispatch("Outlook.Application")
+
+		# need to make an object that can interact with folders in the outlook
+		# MAPI means Message Application Program Interface, this only works for windows
+		try:
+			self.outlook_connection = self.com_obj.GetNameSpace('MAPI')
+		except AttributeError:
+			raise OutlookNotOpenError()
+
+	def set_all_mailboxes_options(self):
+		'''
+		Sets the all_mailboxes attribute. Can only run after connect_to_outlook
+		has been run
+		:return: None
+		'''
+		# mailboxes include email addresses, some folders, calendars etc.
+		list_mailboxes = []
+
+		for mailbox in self.outlook_connection.Folders:
+			# filter out non-emails
+			if '@' in mailbox.Name:
+				list_mailboxes.append(mailbox.Name)
+
+		self.all_mailboxes = list_mailboxes
+
+		# set up options attribute
+		for i in range(len(self.all_mailboxes)):
+			self.mailbox_options[i + 1] = self.all_mailboxes[i]
+
+		if len(self.all_mailboxes) == 0:
+			raise NoEmailsError()
+
+	def call_startup_methods(self):
+		"""
+		Methods that connect the model to the Outlook Application
+		:return:
+		"""
+		try:
+			self.connect_to_outlook()
+		except:
+			raise RuntimeError("Could not connect to outlook, make sure Outlook is Open")
+		self.set_all_mailboxes_options()
+
+	def select_target_mailbox(self, input: int):
+		'''
+		:param input: {int} the key of the corresponding chosen email. All valid
+		options are the keys of the attribute self.mailbox_options dictionary
+		:return: None
+		'''
+
+		self.chosen_mailbox_option = input
+
+		if input not in list(self.mailbox_options.keys()):
+			raise ValueError(f"Selected Option {input} not valid")
+
+		self.selected_email = self.mailbox_options[input]
+
+		# by default we will pick only the 'Inbox' folder
+		self.selected_directory = self.outlook_connection.Folders(self.selected_email).Folders('Inbox')
+
+	def get_all_emails_from_directory(self):
+		'''
+		Returns all emails from current inbox of email
+		:return:
+		'''
+		if self.selected_directory == None:
+			raise RuntimeError(
+				'select_target_mailbox must be called before calling get_all_emails_from_directory in model')
+		return self.selected_directory.Items
+
+	def is_match_for_subject(self, email_item: client.CDispatch):
+		"""
+		Checks if a an email's subject contains the keyword
+		:param email_item:
+		:return:
+		"""
+		# check if target keyphrase is in the email's subject
+		return self.target_subject_keyphrase.lower() in email_item.Subject.lower()
+
+	def is_within_date_range(self, email_item: client.CDispatch):
+		"""
+		Check's if an email's sent date is within the date range deletion condition
+		:param email_item:
+		:return:
+		"""
+		# check if email date is in between target start and end dates
+		email_date = self.date_utility.convert_sent_on_datetime(email_item)
+		return self.date_utility.is_between_dates(lower_bound=self.target_start_date,
+												  upper_bound=self.target_end_date,
+												  target_date=email_date)
+
+	def is_match_for_sender(self, email_item: client.CDispatch):
+		"""
+		Check's if an email's sender matches the sender deletion condition
+		:param email_item:
+		:return:
+		"""
+		# check if sender email address matches
+
+		sender = email_item.SenderEmailAddress
+
+		return self.target_sender_email.lower().__eq__(sender.lower())
+
+	def get_emails_matching_search_conditions(self):
+		"""
+		Returns a list of items from the inbox with properties
+		matching the deletion conditions.
+		Helper method to delete_emails_with_matching_conditions
+		:return:
+		"""
+		if self.verified_conditions == False:
+			raise RuntimeError("Conditions Must Be Verified before Searching For Emails")
+
+		all_emails = self.get_all_emails_from_directory()
+		all_emails.Sort("[ReceivedTime]", True)
+		emails_to_delete = []
+
+		for each_email in all_emails:
+			skip_flag = False
+			for each_index in self.accepted_deletions_conditions:
+				try:
+					is_matching_condition = self.all_matching_functions[each_index](each_email)
+				# Some emails do NOT have 1 of 2 properties:
+				#  1.) SentOn property ( ex. emails about emails that failed to send)
+				#  2.) SenderEmailAddress property (ex. some but NOT all no reply emails, these have a sender but
+				#  		outlook does not see an address associated with the sender)
+				except AttributeError:
+					# self.emails_with_missing_attributes.append(each_email)
+					self.emails_with_missing_attributes_count += 1
+					skip_flag = True
+					break
+
+				if is_matching_condition is False:
+					skip_flag = True
+					break
+
+			if skip_flag == True:  # don't collect email if condition did not match or has missing attribute
+				continue
+			else:
+				emails_to_delete.append(each_email)
+
+		return emails_to_delete
+
+	def delete_emails_with_matching_conditions(self):
+		'''
+		Delete emails that match a certain condition
+		:return:
+		'''
+		matching_emails = self.get_emails_matching_search_conditions()
+		for email in matching_emails:
+			email.Delete()
+			self.delete_counter += 1

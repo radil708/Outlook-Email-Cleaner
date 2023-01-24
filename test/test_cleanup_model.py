@@ -15,6 +15,15 @@ class test_cleanup_model(unittest.TestCase):
 		'''
 		cls.model = cleanup_model()
 
+	def test_singleton_pattern(self) -> None:
+		"""
+		Testing singleton pattern
+		:return:
+		"""
+		model_2 = cleanup_model()
+		#Testing identity
+		self.assertTrue(self.model == model_2)
+
 	def test_deletion_variable_setters(self) -> None:
 		"""
 		Testing setters for model
@@ -193,6 +202,7 @@ class test_cleanup_model(unittest.TestCase):
 		model = self.model
 
 		#sender and dates
+		model.clear_deleting_conditions()
 		model.set_target_sender_email("example@email.com")
 		model.set_target_start_date("02/28/2022")
 		model.set_target_end_date("6/18/2022")
@@ -232,6 +242,7 @@ class test_cleanup_model(unittest.TestCase):
 		"""
 		model = self.model
 
+		model.clear_deleting_conditions()
 		model.set_target_sender_email("example@email.com")
 		model.set_target_start_date("02/28/2022")
 		model.set_target_end_date("6/18/2022")
