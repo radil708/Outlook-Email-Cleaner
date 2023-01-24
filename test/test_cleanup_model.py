@@ -38,6 +38,49 @@ class test_cleanup_model(unittest.TestCase):
 		self.assertEqual(datetime(2022, 6, 18, 23, 59, 59, tzinfo=LOCAL_TIMEZONE), model.target_end_date)
 		self.assertEqual("02/28/2022 to 06/18/2022", model.verification_add_on[1])
 
+		model.clear_deleting_conditions()
+
+	def test_deletion_variable_setters_empty_set(self) -> None:
+		"""
+		Testing setters for model. Empty/space submission should not change values
+		:return:
+		"""
+		model = self.model
+
+		#empty sender
+		model.set_target_sender_email("")
+		self.assertEqual(None, model.target_sender_email)
+		with self.assertRaises(KeyError):
+			model.verification_add_on[0]
+		model.set_target_sender_email("  ")
+		self.assertEqual(None, model.target_sender_email)
+		self.assertRaises(KeyError, lambda : model.verification_add_on[0])
+
+		#empty keyword/phrase
+		model.set_target_subject_keyphrase("")
+		self.assertEqual(None, model.target_subject_keyphrase)
+		self.assertRaises(KeyError, lambda : model.verification_add_on[2])
+		model.set_target_subject_keyphrase(" ")
+		self.assertEqual(None, model.target_subject_keyphrase)
+		self.assertRaises(KeyError, lambda: model.verification_add_on[2])
+
+
+		model.set_target_start_date("")
+		self.assertEqual(None, model.target_start_date)
+		self.assertRaises(KeyError, lambda : model.verification_add_on[1])
+		model.set_target_start_date(" ")
+		self.assertEqual(None, model.target_start_date)
+		self.assertRaises(KeyError, lambda: model.verification_add_on[1])
+
+		model.set_target_end_date("")
+		self.assertEqual(None, model.target_end_date)
+		self.assertRaises(KeyError, lambda : model.verification_add_on[1])
+		model.set_target_end_date(" ")
+		self.assertEqual(None, model.target_end_date)
+		self.assertRaises(KeyError, lambda: model.verification_add_on[1])
+
+		model.clear_deleting_conditions()
+
 	def test_date_setter_throw_missing_date_error(self):
 		"""
 		Testing that an error is raised if an end date is set while the
@@ -47,6 +90,7 @@ class test_cleanup_model(unittest.TestCase):
 		model = self.model
 		model.clear_deleting_conditions()
 		self.assertRaises(MissingStartDate, model.set_target_end_date, "6/18/2022")
+		model.clear_deleting_conditions()
 
 	def test_date_setter_throw_date_conv_error(self):
 		"""
@@ -62,6 +106,8 @@ class test_cleanup_model(unittest.TestCase):
 		#valid start date but invalid end date
 		model.set_target_start_date("2/28/2022")
 		self.assertRaises(DateConversionError, model.set_target_end_date, "06/82/2022")
+
+		model.clear_deleting_conditions()
 
 	def test_clear_deletion_conditions(self):
 		"""
@@ -82,6 +128,124 @@ class test_cleanup_model(unittest.TestCase):
 		self.assertEqual(None, model.target_subject_keyphrase)
 		self.assertEqual(None, model.target_start_date)
 		self.assertEqual(None, model.target_end_date)
+
+	def test_verify_conditions_errors(self):
+		"""
+		testing the verify_deletions_conditions method raises
+		expected errors for negative conditions.
+		:return:
+		"""
+
+		model = self.model
+		self.assertEqual(False, model.verified_conditions)
+		#No conditions set
+		self.assertRaises(EmptyConditionsError, model.verify_deletion_conditions)
+		self.assertEqual(False, model.verified_conditions)
+		model.clear_deleting_conditions()
+
+		#Missing end date condition, but start date set
+		model.set_target_start_date("2/28/2022")
+		self.assertRaises(RuntimeError, model.verify_deletion_conditions)
+		self.assertEqual(False, model.verified_conditions)
+		model.clear_deleting_conditions()
+
+	def test_verify_conditions_one_condition(self):
+		"""
+		Testing verified conditions method when one condition is set
+		:return:
+		"""
+		model = self.model
+
+		# only sender email set
+		model.set_target_sender_email("example@email.com")
+		self.assertEqual(False,model.verified_conditions)
+		model.verify_deletion_conditions()
+		self.assertEqual(True, model.verified_conditions)
+		self.assertEqual([0],model.accepted_deletions_conditions)
+		self.assertEqual("sender email: example@email.com", model.deletion_confirmation_str)
+
+		#only dates set
+		model.clear_deleting_conditions()
+		model.set_target_start_date("02/28/2022")
+		model.set_target_end_date("6/18/2022")
+		self.assertEqual(False, model.verified_conditions)
+		model.verify_deletion_conditions()
+		self.assertEqual(True, model.verified_conditions)
+		self.assertEqual([1], model.accepted_deletions_conditions)
+		self.assertEqual("was sent between the dates (inclusive): 02/28/2022 to 06/18/2022", model.deletion_confirmation_str)
+
+		#only keyword/phrase set
+		model.clear_deleting_conditions()
+		model.set_target_subject_keyphrase("psych!")
+		self.assertEqual(False, model.verified_conditions)
+		model.verify_deletion_conditions()
+		self.assertEqual(True, model.verified_conditions)
+		self.assertEqual([2], model.accepted_deletions_conditions)
+		expected = "has the keyword/keyphrase in the subject: psych!"
+		self.assertEqual(expected, model.deletion_confirmation_str)
+
+
+	def test_verify_conditions_two_conditions(self):
+		"""
+		Testing verified conditions method when two condition are set
+		:return:
+		"""
+		model = self.model
+
+		#sender and dates
+		model.set_target_sender_email("example@email.com")
+		model.set_target_start_date("02/28/2022")
+		model.set_target_end_date("6/18/2022")
+		self.assertEqual(False, model.verified_conditions)
+		model.verify_deletion_conditions()
+		self.assertEqual([0,1], model.accepted_deletions_conditions)
+		self.assertEqual(True, model.verified_conditions)
+		expected_str = "sender email: example@email.com AND was sent between the dates (inclusive): 02/28/2022 to 06/18/2022"
+		self.assertEqual(expected_str, model.deletion_confirmation_str)
+
+		#sender and keyword/phrase
+		model.clear_deleting_conditions()
+		self.assertEqual(False, model.verified_conditions)
+		model.set_target_sender_email("example@email.com")
+		model.set_target_subject_keyphrase("psych!")
+		model.verify_deletion_conditions()
+		self.assertEqual(True, model.verified_conditions)
+		expected = "sender email: example@email.com AND has the keyword/keyphrase in the subject: psych!"
+		self.assertEqual(expected, model.deletion_confirmation_str)
+
+		#date and keyword/phrase
+		model.clear_deleting_conditions()
+		self.assertEqual(False, model.verified_conditions)
+		model.set_target_start_date("02/28/2022")
+		model.set_target_end_date("6/18/2022")
+		model.set_target_subject_keyphrase("psych!")
+		model.verify_deletion_conditions()
+		self.assertEqual(True, model.verified_conditions)
+		expected = "was sent between the dates (inclusive): 02/28/2022 to 06/18/2022 AND has the keyword/keyphrase in the subject: psych!"
+		self.assertEqual(expected, model.deletion_confirmation_str)
+		model.clear_deleting_conditions()
+
+	def test_verify_conditions_three_conditions(self):
+		"""
+		Testing verified conditions method when three condition are set
+		:return:
+		"""
+		model = self.model
+
+		model.set_target_sender_email("example@email.com")
+		model.set_target_start_date("02/28/2022")
+		model.set_target_end_date("6/18/2022")
+		model.set_target_subject_keyphrase("psych!")
+		self.assertEqual(False, model.verified_conditions)
+		model.verify_deletion_conditions()
+		self.assertEqual(True, model.verified_conditions)
+		expected = "sender email: example@email.com AND "
+		expected += "was sent between the dates (inclusive): 02/28/2022 to 06/18/2022 AND "
+		expected += "has the keyword/keyphrase in the subject: psych!"
+		self.assertEqual(expected, model.deletion_confirmation_str)
+		model.clear_deleting_conditions()
+
+
 
 
 def main():

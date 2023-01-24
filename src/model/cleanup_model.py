@@ -10,6 +10,7 @@ singleton pattern. This model will contain all functionality of actual e-mail
 deletion.
 """
 
+
 class cleanup_model():
 
 	def __init__(self):
@@ -21,16 +22,28 @@ class cleanup_model():
 		self.date_utility = date_handler()
 
 		################ variables relating to deleting conditions ################
-		self.target_sender_email = None    # string
-		self.target_start_date = None      # datetime obj
-		self.target_end_date = None        # datetime obj
-		self.target_subject_keyphrase = None # string
+		self.target_sender_email = None  # string
+		self.target_start_date = None  # datetime obj
+		self.target_end_date = None  # datetime obj
+		self.target_subject_keyphrase = None  # string
+		self.delete_counter = 0
+
+		###################### Verification Related Varibales ######################
 
 		# dictionary used to hold information for confirmation string question
-		# Dynamically set at runtime
 		# key: 0, value : target_sender_email
+		# key: 1, value : target_start_date to target_end_date
 		# key: 2, value : target_subject_key_[hrase
 		self.verification_add_on = {}
+
+		self.accepted_deletions_conditions = []  # contains indexes corresponding to conditions to check
+
+		# if adding new conditions, new keys must be added with appropriate value and verification must be modified
+		self.verification_phrase_prefixes = {0: "sender email:",
+											 1: "was sent between the dates (inclusive):",
+											 2: "has the keyword/keyphrase in the subject:"}
+		self.deletion_confirmation_str = ""
+		self.verified_conditions = False  # Must be set to true before being able to look for matching emails
 
 	def set_target_sender_email(self, email: str) -> None:
 		'''
@@ -62,7 +75,7 @@ class cleanup_model():
 		:param date: {str} representation of datetime, must be in the format mm/dd/yyyy
 		:return: None
 		'''
-		#if empty date input then don't do anything
+		# if empty date input then don't do anything
 		if date.isspace() or date == "":
 			return
 		else:
@@ -80,9 +93,9 @@ class cleanup_model():
 		:param date: {str} representation of datetime, must be in the format mm/dd/yyyy
 		:return:
 		'''
-		#if empty date input
+		# if empty date input
 		if date.isspace() or date == "":
-			#check that start date is also empty
+			# check that start date is also empty
 			if self.target_start_date is None:
 				return
 			else:
@@ -98,7 +111,7 @@ class cleanup_model():
 		except ValueError:
 			raise DateConversionError()
 
-		self.target_end_date = self.date_utility.convert_list_into_datetime(date_list_end,endtime=True)
+		self.target_end_date = self.date_utility.convert_list_into_datetime(date_list_end, endtime=True)
 		date_existing = self.verification_add_on[1]
 		if date_existing == "" or date_existing is None:
 			raise MissingStartDate()
@@ -117,3 +130,43 @@ class cleanup_model():
 		self.target_end_date = None
 		self.target_subject_keyphrase = None
 		self.verification_add_on = {}
+		self.accepted_deletions_conditions = []
+		self.deletion_confirmation_str = ""
+		self.verified_conditions = False
+		self.delete_counter = 0
+
+	def verify_deletion_conditions(self):
+		'''
+		Checks that some deletion conditions have been set and formatted correctly.
+		Raises a custom EmptyConditionsError if no attributes have been set.
+		This method MUST be called before any deletion occurs.
+		:return:
+		'''
+
+		# Check that at least one of the three conditions have been set
+		if self.target_sender_email is None and self.target_start_date is None \
+				and self.target_end_date is None and self.target_subject_keyphrase is None:
+			raise EmptyConditionsError
+
+		# Apply All matching conditions
+		if self.target_sender_email is not None:
+			self.accepted_deletions_conditions.append(0)  # represents condition index in self.all_matching_functions
+		if self.target_start_date is not None and self.target_end_date is not None:
+			self.accepted_deletions_conditions.append(1)  # represents condition index in self.all_matching_functions
+		if self.target_subject_keyphrase is not None:
+			self.accepted_deletions_conditions.append(2)  # represents condition index in self.all_matching_functions
+
+		# Check that if start date is sets, that end date is also set
+		if self.target_start_date is not None and self.target_end_date is None:
+			raise RuntimeError("Missing target end date")
+		elif self.target_start_date is None and self.target_end_date is not None:
+			raise RuntimeError("Missing target start date")
+
+		# string to ask for confirmation of settings
+		for each_index in self.accepted_deletions_conditions:
+			self.deletion_confirmation_str += self.verification_phrase_prefixes[each_index] + " " + \
+											  self.verification_add_on[each_index]
+			self.deletion_confirmation_str += " AND "
+
+		self.deletion_confirmation_str = self.deletion_confirmation_str.rstrip(" AND")
+		self.verified_conditions = True
