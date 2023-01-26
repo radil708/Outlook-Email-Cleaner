@@ -9,7 +9,16 @@ for yourself, all I ask is that you list me as a contributor or
 provide some credit to me, thanks!
 
 ############################ PROJECT STATUS ############################
-Status: In Progress
+Status: Completed
+
+Future Goals: Create a simple UI aside from console
+
+############################# HOW TO RUN #############################
+0.) Download this repo to your computer
+1.) Navigate to the folder containing this code
+2.) Run the cmd: python email_cleanup.py
+3.) Answer the prompts to run the program
+*** PLEASE READ LIMITS Section
 
 ############################# REQUIREMENTS #############################
 0.) System: Windows
@@ -24,5 +33,31 @@ does limit this program. I may work on future version that works
 across all systems and uses built in libraries to minimize
 the requirements to run it)
 
+############################# LIMITS #################################
+This program interacts with outlook, NOT the Server the emails are held
+This means that it can only access emails currently loaded on the app
+If you have a lot of emails, some may not be loaded up on the application
+meaning that this program will can not delete them until they are loaded
+on.
+
+You can fix this by following the instructions below:
+File-> Account Settings-> Account Settings...->
+double click on your Exchange account-> set the Mail to keep offline slider to: All.
+
+Note* if you have thousands of emails it may take some time and space(5000 emails
+may result in around using 3 GB of data depending on content) to load
+up all emails
+
+After all of the data loads up on outlook, you will need to restart the computer
+
 ############################# CONTRIBUTOR #############################
 Designed, coded, and tested by Ramzi Reilly Adil
+
+############################# EXTRA NOTES #############################
+NOTES****
+My testing showed that:
+- Some emails do not contain a sentOn property or even a sender email address.
+  > These are usually associated with email notifications that an email was not delivered successfully
+  > There were also emails that had a "sender" but no associated emails (like some the no-reply emails)
+- In these cases it is much better to delete those specific emails using subject keyword category.
+- In the future I may decide to add an extra feature to delete all such emails.
