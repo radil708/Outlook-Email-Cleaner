@@ -71,7 +71,8 @@ class cleanup_model():
 
 	def set_target_sender_email(self, email: str) -> None:
 		'''
-		Set target_sender_email attribute if input is not empty
+		Set target_sender_email attribute if input is not empty. This should
+		only be 1 specific sender.
 		:param email: (str) sender email target
 		:return: None
 		'''
@@ -276,7 +277,7 @@ class cleanup_model():
 	def is_match_for_subject(self, email_item: client.CDispatch):
 		"""
 		Checks if a an email's subject contains the keyword/phrase
-		:param email_item:
+		:param email_item: (win32com.client.CDispatch) an email item from outlook
 		:return:
 		"""
 		# check if target keyphrase is in the email's subject
@@ -285,7 +286,7 @@ class cleanup_model():
 	def is_within_date_range(self, email_item: client.CDispatch):
 		"""
 		Check's if an email's sent date is within the date range deletion condition
-		:param email_item:
+		:param email_item: (win32com.client.CDispatch) an email item from outlook
 		:return:
 		"""
 		# check if email date is in between target start and end dates
@@ -297,7 +298,9 @@ class cleanup_model():
 	def is_match_for_sender(self, email_item: client.CDispatch):
 		"""
 		Check's if an email's sender matches the sender deletion condition
-		:param email_item:
+		This will not match for an email that was sent by multiple people.
+		It can only be 1 sender.
+		:param email_item: (win32com.client.CDispatch) an email item from outlook
 		:return:
 		"""
 		# check if sender email address matches
