@@ -37,8 +37,11 @@ the requirements to run it)
 This program interacts with outlook, NOT the Server the emails are held
 This means that it can only access emails currently loaded on the app
 If you have a lot of emails, some may not be loaded up on the application
-meaning that this program will can not delete them until they are loaded
-on.
+meaning that this program can not access them until they are loaded
+on. How do you know if you fit this case? If you are on outlook
+and using an outlook based email, in the inbox, scroll all the way down.
+You will see a prompt stating: "There are more items in this folder on the server".
+
 
 You can fix this by following the instructions below:
 File-> Account Settings-> Account Settings...->
@@ -49,6 +52,7 @@ may result in around using 3 GB of data depending on content) to load
 up all emails
 
 After all of the data loads up on outlook, you will need to restart the computer
+and rerun this program
 
 ############################# CONTRIBUTOR #############################
 Designed, coded, and tested by Ramzi Reilly Adil
