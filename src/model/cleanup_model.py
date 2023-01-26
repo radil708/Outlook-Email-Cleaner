@@ -38,7 +38,7 @@ class cleanup_model():
 		# dictionary used to hold information for confirmation string question
 		# key: 0, value : target_sender_email
 		# key: 1, value : target_start_date to target_end_date
-		# key: 2, value : target_subject_key_[hrase
+		# key: 2, value : target_subject_key_phrase
 		self.verification_add_on = {}
 
 		self.accepted_deletions_conditions = []  # contains indexes corresponding to conditions to check
