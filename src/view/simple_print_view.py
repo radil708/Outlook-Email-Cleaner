@@ -75,4 +75,7 @@ class simple_print_view(cleanup_view_interface):
 	def print_hash_divider(self):
 		print("\n############################################################")
 
+	def display_error(self, error_msg: str):
+		print(error_msg)
+
 

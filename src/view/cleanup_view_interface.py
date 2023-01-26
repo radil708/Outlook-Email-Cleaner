@@ -89,3 +89,17 @@ class cleanup_view_interface():
 		:return: (bool) True if the user wants to continue, False otherwise
 		"""
 		raise NotImplementedError()
+
+	def display_error(self, error_msg: str):
+		"""
+		Displays an error message
+		:param error_msg: (str) The error message
+		:return:
+		"""
+
+	def print_hash_divider(self):
+		"""
+		Useful for the print view, can be implemented as nothing for the
+		tkinter view.
+		:return:
+		"""
