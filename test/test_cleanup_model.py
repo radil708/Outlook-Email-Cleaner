@@ -4,14 +4,20 @@ from src.model.date_handler import LOCAL_TIMEZONE
 from datetime import datetime
 from src.model.cleanup_custom_exceptions import *
 
-DEVELOPER_MODE = False
 
-ALL_EMAILS = []
-with open("test_helper", "r") as file:
-	for line in file:
-		email_from_file = line.strip()
-		if not email_from_file.isspace():
-			ALL_EMAILS.append(email_from_file)
+"""
+DEVELOPER_MODE must be false on public repo. 
+"""
+try:
+	ALL_EMAILS = []
+	with open("developer_test_helper", "r") as file:
+		for line in file:
+			email_from_file = line.strip()
+			if not email_from_file.isspace():
+				ALL_EMAILS.append(email_from_file)
+		DEVELOPER_MODE = True
+except FileNotFoundError:
+	DEVELOPER_MODE = False
 
 
 class test_cleanup_model(unittest.TestCase):
@@ -28,6 +34,7 @@ class test_cleanup_model(unittest.TestCase):
 		:return: None
 		'''
 		cls.model = cleanup_model()
+		cls.model.call_startup_methods()
 
 	def test_singleton_pattern(self) -> None:
 		"""
@@ -270,8 +277,197 @@ class test_cleanup_model(unittest.TestCase):
 		self.assertEqual(expected, model.deletion_confirmation_str)
 		model.clear_deleting_conditions()
 
+	def test_select_mailbox_1(self):
+		'''
+		testing access to one of two emails on outlook
+		:return:
+		'''
+		model = self.model
 
+		if DEVELOPER_MODE == False:
+			self.skipTest('developer_test_helper file not available, test_select_mailbox_1 has been skipped')
 
+		# picking the first email as the email to delete from
+		model.select_target_mailbox(1)
+		self.assertEqual(ALL_EMAILS[0], model.selected_email)
+
+	def test_select_mailbox_2(self):
+		'''
+		Testing access to the other email available on outlook
+		:return:
+		'''
+
+		model = self.model
+
+		if DEVELOPER_MODE == False:
+			self.skipTest('developer_test_helper file not available, test_select_mailbox_2 has been skipped')
+
+		# picking the second email as the email to delete from
+		model.select_target_mailbox(2)
+		self.assertEqual(ALL_EMAILS[1], model.selected_email)
+
+	def test_find_emails_matching_one_condition(self):
+		'''
+		These tests will only run successfully on my (radil708's) computer because they are linked
+		to my test email information. These tests WILL be skipped otherwise. Feel free to use it as
+		a template if you want to make tests to run on your machine.
+		This is to test finding emails that match 1 specified condition.
+		:return: None
+		'''
+
+		# Since these tests are specific to my test email and the emails in my own test email
+		# these tests will be skipped. You can use this test as a template for your
+		# own email tests if you want, but I have already verified that these work.
+		if DEVELOPER_MODE == False:
+			self.skipTest("Not in developer mode, test_find_emails_matching_one_condition has been skipped")
+
+		model = self.model
+		model.clear_deleting_conditions()
+		model.selected_email = ALL_EMAILS[0]
+		# manually pointing directoy to inbox, usually is automatically set when calling select_target_mailbox
+		model.selected_directory = model.outlook_connection.Folders(model.selected_email).Folders('Inbox')
+		model.clear_deleting_conditions()
+
+		######################## Test Finding Emails By Date Condition Only ########################
+		model.set_target_start_date("1/18/2023")
+		model.set_target_end_date("1/18/2023")
+		model.verify_deletion_conditions()
+		matching_date_cond_emails = model.get_emails_matching_search_conditions()
+		self.assertEqual(12, len(matching_date_cond_emails),
+						 msg="This test will fail if the email used is not my (radil708's) test email, you can make your own tests following this template though")
+
+		######################## Test Finding Emails By Subject Key Word/Phrase Only ########################
+		model.clear_deleting_conditions()  # clear up, now only look for matching subject
+		model.set_target_subject_keyphrase("test")
+		model.verify_deletion_conditions()
+		matching_phrase_emails = model.get_emails_matching_search_conditions()
+		self.assertEqual(164, len(matching_phrase_emails),
+						 msg="This test will fail if the email used is not my (radil708's) test email, "
+							 "you can make your own tests following this template though")
+
+		######################## Test Finding Emails By Sender Email Address Only ########################
+		model.clear_deleting_conditions()  # clear up, now only look for matching senderemailaddress
+		model.set_target_sender_email(ALL_EMAILS[1])
+		self.assertEqual(model.target_sender_email, ALL_EMAILS[1])
+		model.verify_deletion_conditions()
+		matching_sender = model.get_emails_matching_search_conditions()
+		self.assertEqual(1, len(matching_sender),
+						 msg="This test will fail if the email used is not my (radil708's) test email, you can "
+							 "make your own tests following this template though")
+
+	def test_find_emails_matching_two_conditions(self):
+		"""
+		These tests will only run successfully on my (radil708's) computer because they are linked
+		to my test email information and the emails that are present in my test email server.
+		These tests WILL be skipped otherwise. Feel free to use it as
+		a template if you want to make tests to run on your machine.
+		This is to test finding emails that match 2 specified conditions.
+		:return: None
+		"""
+
+		# Since these tests are specific to my test email and the emails in my own test email
+		# these tests will be skipped. You can use this test as a template for your
+		# own email tests if you want, but I have already verified that these work.
+
+		if DEVELOPER_MODE == False:
+			self.skipTest("Not in developer mode, test_find_emails_matching_two_conditions has been skipped")
+
+		model = self.model
+		model.clear_deleting_conditions()
+		model.selected_email = ALL_EMAILS[0]
+		# manually pointing directory to inbox, usually is automatically set when calling select_target_mailbox
+		model.selected_directory = model.outlook_connection.Folders(model.selected_email).Folders('Inbox')
+		model.clear_deleting_conditions()
+
+		######################## Test Finding Emails By Sender Address And Date Range Conditions Only ########################
+		model.set_target_sender_email(ALL_EMAILS[1])
+		model.set_target_start_date("1/15/2023")
+		model.set_target_end_date("1/19/2023")
+		model.verify_deletion_conditions()
+		matching_sender_and_date_emails = model.get_emails_matching_search_conditions()
+		self.assertEqual(2, len(matching_sender_and_date_emails),
+						 msg="This test will fail if the email used is not my (radil708's) test email, you can make your own tests following this template though")
+
+		######################## Test Finding Emails By Sender Address And Subject Key Word Conditions Only ########################
+		model.clear_deleting_conditions()
+		model.set_target_sender_email(ALL_EMAILS[1])
+		model.set_target_subject_keyphrase("Test")
+		model.verify_deletion_conditions()
+		matching_sender_and_keyword_emails = model.get_emails_matching_search_conditions()
+		self.assertEqual(1, len(matching_sender_and_keyword_emails))
+
+		######################## Test Finding Emails By Date Range And Subject Key Word Conditions Only ########################
+		model.clear_deleting_conditions()
+		model.set_target_start_date("1/18/2023")
+		model.set_target_end_date("1/19/2023")
+		model.set_target_subject_keyphrase("ramzi")
+		model.verify_deletion_conditions()
+		matching_date_and_keyword_emails = model.get_emails_matching_search_conditions()
+		self.assertEqual(2, len(matching_date_and_keyword_emails), msg="This test will fail if the email used is "
+																	   "not my (radil708's) test email, you can make "
+																	   "your own tests following this template though")
+
+	def test_find_emails_matching_three_conditions(self):
+		"""
+		These tests will only run successfully on my (radil708's) computer because they are linked
+		to my test email information. These tests WILL be skipped otherwise. Feel free to use it as
+		a template if you want to make tests to run on your machine.
+		This is to test finding emails that match 3 specified conditions.
+		:return: None
+		"""
+		# Since these tests are specific to my test email and the emails in my own test email
+		# these tests will be skipped. You can use this test as a template for your
+		# own email tests if you want, but I have already verified that these work.
+
+		if DEVELOPER_MODE == False:
+			self.skipTest("Not in developer_mode, test_find_emails_matching_three_conditions has been skipped")
+
+		model = self.model
+		model.selected_email = ALL_EMAILS[0]
+		# manually pointing directory to inbox, usually is automatically set when calling select_target_mailbox
+		model.selected_directory = model.outlook_connection.Folders(model.selected_email).Folders('Inbox')
+		model.clear_deleting_conditions()
+
+		model.set_target_sender_email(ALL_EMAILS[1])
+		model.set_target_start_date("1/15/2023")
+		model.set_target_end_date("1/19/2023")
+		model.set_target_subject_keyphrase("test")
+		model.verify_deletion_conditions()
+		matching_all_conditions = model.get_emails_matching_search_conditions()
+		self.assertEqual(2, len(matching_all_conditions), msg="This test will fail if the email used is "
+																	   "not my (radil708's) test email, you can make "
+																	   "your own tests following this template though")
+
+	def test_delete_emails_matching_conditions(self):
+		"""
+		Test deletion count and actual deletion of emails
+		:return:
+		"""
+
+		# Since these tests are specific to my test email and the emails in my own test email
+		# these tests will be skipped. You can use this test as a template for your
+		# own email tests if you want, but I have already verified that these work.
+
+		if DEVELOPER_MODE == False:
+			self.skipTest("Not in developer mode, test_delete_emails_matching_condition has been skipped")
+
+		model = self.model
+		model.selected_email = ALL_EMAILS[0]
+		# manually pointing directory to inbox, usually is automatically set when calling select_target_mailbox
+		model.selected_directory = model.outlook_connection.Folders(model.selected_email).Folders('Inbox')
+		model.clear_deleting_conditions()
+
+		model.set_target_sender_email(ALL_EMAILS[1])
+		model.set_target_start_date("1/15/2023")
+		model.set_target_end_date("1/19/2023")
+		model.set_target_subject_keyphrase("test")
+		model.verify_deletion_conditions()
+		model.delete_emails_with_matching_conditions()
+
+		if model.delete_counter != 2:
+			self.skipTest("Emails may already have been deleted, skipping test_delete_emails_matching_conditions")
+
+		self.assertEqual(2, model.delete_counter)
 
 def main():
 	unittest.main(verbosity=3)
