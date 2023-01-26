@@ -275,7 +275,7 @@ class cleanup_model():
 
 	def is_match_for_subject(self, email_item: client.CDispatch):
 		"""
-		Checks if a an email's subject contains the keyword
+		Checks if a an email's subject contains the keyword/phrase
 		:param email_item:
 		:return:
 		"""

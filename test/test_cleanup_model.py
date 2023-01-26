@@ -4,7 +4,21 @@ from src.model.date_handler import LOCAL_TIMEZONE
 from datetime import datetime
 from src.model.cleanup_custom_exceptions import *
 
+DEVELOPER_MODE = False
+
+ALL_EMAILS = []
+with open("test_helper", "r") as file:
+	for line in file:
+		email_from_file = line.strip()
+		if not email_from_file.isspace():
+			ALL_EMAILS.append(email_from_file)
+
+
 class test_cleanup_model(unittest.TestCase):
+	"""
+	This class tests the methods of the cleanup_model. Some tests will be skipped
+	because those tests are specific to the emails I used to test.
+	"""
 	@classmethod
 	def setUpClass(cls) -> None:
 		'''
