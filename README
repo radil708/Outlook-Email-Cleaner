@@ -3,8 +3,8 @@ I made this program because I have emails filled with
 ads and junk that got through my spam filter. It would take
 too long to delete them all with the user interface on the web
 or on the specific application so I decided to build a simple program
-to delete emails that meet certain conditions such as date,
-subject, and sender. I am sharing it here
+to delete emails that meet certain conditions such as specified date ranges,
+subject, and/or sender. I am sharing it here
 for others to use. If you decide to add on or modify this code
 for yourself, all I ask is that you list me as a contributor or
 provide some credit to me, thanks!
