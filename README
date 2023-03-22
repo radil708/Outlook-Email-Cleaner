@@ -31,10 +31,10 @@ Future Goals: Create a simple UI aside from console
 3.) Application: Microsoft Outlook
 4.) Signed in to outlook with the email(s) of your choice
 
-NOTE(*** I understand that the third party modules and windows requirement
+NOTE*** : I understand that the third party modules and windows requirement
 does limit this program. I may work on future version that works
 across all systems and uses built in libraries to minimize
-the requirements to run it)
+the requirements to run it.
 
 ############################# LIMITS #################################
 This program interacts with outlook, NOT the Server the emails are held on.
