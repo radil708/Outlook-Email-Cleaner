@@ -65,6 +65,6 @@ NOTES****
 My testing showed that:
 - Some emails do not contain a sentOn property or even a sender email address.
   > These are usually associated with email notifications that an email was not delivered successfully
-  > There were also emails that had a "sender" but no associated emails (like some the no-reply emails)
+  > There were also emails that had a "sender" but no associated emails (like some no-reply emails)
 - In these cases it is much better to delete those specific emails using the subject keyword category.
 - In the future I may decide to add an extra feature to delete all such emails.
