@@ -34,12 +34,12 @@ across all systems and uses built in libraries to minimize
 the requirements to run it)
 
 ############################# LIMITS #################################
-This program interacts with outlook, NOT the Server the emails are held
-This means that it can only access emails currently loaded on the app
+This program interacts with outlook, NOT the Server the emails are held on.
+This means that it can only access emails currently loaded on to the app.
 If you have a lot of emails, some may not be loaded up on the application
 meaning that this program can not access them until they are loaded
-on. How do you know if you fit this case? If you are on outlook
-and using an outlook based email, in the inbox, scroll all the way down.
+on to the app. How do you know if you fit this case? If you are on outlook
+and are using an outlook based email, in the inbox, scroll all the way down.
 You will see a prompt stating: "There are more items in this folder on the server".
 
 
@@ -63,5 +63,5 @@ My testing showed that:
 - Some emails do not contain a sentOn property or even a sender email address.
   > These are usually associated with email notifications that an email was not delivered successfully
   > There were also emails that had a "sender" but no associated emails (like some the no-reply emails)
-- In these cases it is much better to delete those specific emails using subject keyword category.
+- In these cases it is much better to delete those specific emails using the subject keyword category.
 - In the future I may decide to add an extra feature to delete all such emails.
