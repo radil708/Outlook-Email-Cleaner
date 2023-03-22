@@ -3,7 +3,8 @@ I made this program because I have emails filled with
 ads and junk that got through my spam filter. It would take
 too long to delete them all with the user interface on the web
 or on the specific application so I decided to build a simple program
-to delete emails that meet certain conditions. I am sharing it here
+to delete emails that meet certain conditions such as date,
+subject, and sender. I am sharing it here
 for others to use. If you decide to add on or modify this code
 for yourself, all I ask is that you list me as a contributor or
 provide some credit to me, thanks!
@@ -17,7 +18,9 @@ Future Goals: Create a simple UI aside from console
 0.) Download this repo to your computer
 1.) Navigate to the folder containing this code
 2.) Run the cmd: python email_cleanup.py
-3.) Answer the prompts to run the program
+3.) Answer the prompts to inform the program
+    of which emails (by condition) should be 
+    deleted.
 *** PLEASE READ LIMITS Section
 
 ############################# REQUIREMENTS #############################
