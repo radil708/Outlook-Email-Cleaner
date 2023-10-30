@@ -42,8 +42,11 @@ class cleanup_controller:
 		self.c_view.display_message(
 			"Please enter the email parameter(s) for deletion, you may leave any parameter blank",exit_after_msg=False)
 
-		sender = self.c_view.get_target_sender()
-		self.c_model.set_target_sender_email(sender)
+		sender_e_address = self.c_view.get_target_sender()
+		self.c_model.set_target_sender_email(sender_e_address)
+
+		sender_name = self.c_view.get_target_sender_name()
+		self.c_model.set_target_sender_name(sender_name)
 
 		full_date_processing_correct = False
 		while full_date_processing_correct == False:
