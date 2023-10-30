@@ -6,7 +6,8 @@ from src.model.cleanup_custom_exceptions import *
 
 
 """
-DEVELOPER_MODE must be false on public repo. 
+DEVELOPER_MODE must be false on public repo.
+Open Outlook before running these tests 
 """
 try:
 	ALL_EMAILS = []

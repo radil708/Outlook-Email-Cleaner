@@ -177,6 +177,7 @@ class cleanup_model():
 		'''
 
     self.target_sender_email = None
+    self.target_sender_name = None
     self.target_start_date = None
     self.target_end_date = None
     self.target_subject_keyphrase = None
