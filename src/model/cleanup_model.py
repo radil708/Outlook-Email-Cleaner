@@ -207,8 +207,10 @@ class cleanup_model():
       self.accepted_deletions_conditions.append(1)  # represents condition index in self.all_matching_functions
     if self.target_subject_keyphrase is not None:
       self.accepted_deletions_conditions.append(2)  # represents condition index in self.all_matching_functions
+    if self.target_sender_name is not None:
+      self.accepted_deletions_conditions.append(3)  # represents condition index in self.all_matching_functions
 
-    # Check that if start date is sets, that end date is also set
+    # Check that if start date is set, that end date is also set
     if self.target_start_date is not None and self.target_end_date is None:
       raise RuntimeError("Missing target end date")
     elif self.target_start_date is None and self.target_end_date is not None:
