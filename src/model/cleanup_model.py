@@ -348,7 +348,7 @@ class cleanup_model():
 		"""
     sender_name = email_item.SenderName
 
-    return self.self.target_sender_name.lower().__eq__(sender_name)
+    return self.target_sender_name.lower().__eq__(sender_name.lower())
 
   def get_emails_matching_search_conditions(self):
     """
