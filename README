@@ -65,3 +65,14 @@ My testing showed that:
   > There were also emails that had a "sender" but no associated emails (like some the no-reply emails)
 - In these cases it is much better to delete those specific emails using subject keyword category.
 - In the future I may decide to add an extra feature to delete all such emails.
+
+######################## UPDATE 10/30/2023  #############################
+I added a feature to delete by the name of the sender. The reason is that I noticed
+when using this program that I get emails from the same organization (sender name) but coming from
+slightly different email address. For example, I may get multiple emails where the sender name is
+Indeed but the email addresses are IndeedNotifications@indeed.com and IndeedInfo@indeed.com; these
+addresses are made up, but the effect is the same. In response to this,
+I wanted to add a way to delete emails without having to select for all the different addresses.
+
+In the future I am thinking of making a version of this program that can analyze the amount of emails
+sent by whom and the ability to delete by multiple email addresses/names as opposed to just one each time.
