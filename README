@@ -3,7 +3,8 @@ I made this program because I have emails filled with
 ads and junk that got through my spam filter. It would take
 too long to delete them all with the user interface on the web
 or on the specific application so I decided to build a simple program
-to delete emails that meet certain conditions. I am sharing it here
+to delete emails that meet certain conditions such as specified date ranges,
+subject, and/or sender. I am sharing it here
 for others to use. If you decide to add on or modify this code
 for yourself, all I ask is that you list me as a contributor or
 provide some credit to me, thanks!
@@ -17,7 +18,9 @@ Future Goals: Create a simple UI aside from console
 0.) Download this repo to your computer
 1.) Navigate to the folder containing this code
 2.) Run the cmd: python email_cleanup.py
-3.) Answer the prompts to run the program
+3.) Answer the prompts to inform the program
+    of which emails (by condition) should be 
+    deleted.
 *** PLEASE READ LIMITS Section
 
 ############################# REQUIREMENTS #############################
@@ -26,20 +29,20 @@ Future Goals: Create a simple UI aside from console
 2.) Third Party Python Modules: pywin32 (only works for windows systems)
      > You can install it via pip
 3.) Application: Microsoft Outlook
-4.) Signed in to outlook with the email of your choice(s)
+4.) Signed in to outlook with the email(s) of your choice
 
-NOTE(*** I understand that the third party modules and windows requirement
+NOTE*** : I understand that the third party modules and windows requirement
 does limit this program. I may work on future version that works
 across all systems and uses built in libraries to minimize
-the requirements to run it)
+the requirements to run it.
 
 ############################# LIMITS #################################
-This program interacts with outlook, NOT the Server the emails are held
-This means that it can only access emails currently loaded on the app
+This program interacts with outlook, NOT the Server the emails are held on.
+This means that it can only access emails currently loaded on to the app.
 If you have a lot of emails, some may not be loaded up on the application
 meaning that this program can not access them until they are loaded
-on. How do you know if you fit this case? If you are on outlook
-and using an outlook based email, in the inbox, scroll all the way down.
+on to the app. How do you know if you fit this case? If you are on outlook
+and are using an outlook based email, in the inbox, scroll all the way down.
 You will see a prompt stating: "There are more items in this folder on the server".
 
 
@@ -47,7 +50,7 @@ You can fix this by following the instructions below:
 File-> Account Settings-> Account Settings...->
 double click on your Exchange account-> set the Mail to keep offline slider to: All.
 
-Note* if you have thousands of emails it may take some time and space(5000 emails
+Note* if you have thousands of emails it may take some time and space(for example: 5000 emails
 may result in around using 3 GB of data depending on content) to load
 up all emails
 
@@ -62,6 +65,7 @@ NOTES****
 My testing showed that:
 - Some emails do not contain a sentOn property or even a sender email address.
   > These are usually associated with email notifications that an email was not delivered successfully
+
   > There were also emails that had a "sender" but no associated emails (like some the no-reply emails)
 - In these cases it is much better to delete those specific emails using subject keyword category.
 - In the future I may decide to add an extra feature to delete all such emails.
@@ -76,3 +80,8 @@ I wanted to add a way to delete emails without having to select for all the diff
 
 In the future I am thinking of making a version of this program that can analyze the amount of emails
 sent by whom and the ability to delete by multiple email addresses/names as opposed to just one each time.
+=======
+  > There were also emails that had a "sender" but no associated emails (like some no-reply emails)
+- In these cases it is much better to delete those specific emails using the subject keyword category.
+- In the future I may decide to add an extra feature to delete all such emails.
+
