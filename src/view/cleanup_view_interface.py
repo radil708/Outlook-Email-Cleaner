@@ -38,6 +38,14 @@ class cleanup_view_interface():
 		"""
 		raise NotImplementedError()
 
+	def get_target_sender_name(self) -> str:
+		"""
+		Prompts the user and gets the target_sender_name from the user.
+		:return: (str) The keyword/phrase to be used in the matching conditions
+					of the model
+		"""
+		raise NotImplementedError()
+
 	def get_target_start_date(self) -> str:
 		"""
 		Prompts the user and gets the target_start_date input from the user.

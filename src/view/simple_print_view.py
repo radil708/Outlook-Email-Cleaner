@@ -38,6 +38,9 @@ class simple_print_view(cleanup_view_interface):
 	def get_target_sender(self):
 		return input("Sender Email Address: ")
 
+	def get_target_sender_name(self) -> str:
+		return input("Sender Name: ")
+
 	def get_target_start_date(self):
 		date_chosen = input("Lower Date Boundary (inclusive) in the format of mm/dd/yyyy, for ex. 12/16/2022 is Dec 16, 2022:\n")
 		return date_chosen
