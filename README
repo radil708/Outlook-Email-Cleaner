@@ -69,6 +69,9 @@ My testing showed that:
   > There were also emails that had a "sender" but no associated emails (like some the no-reply emails)
 - In these cases it is much better to delete those specific emails using subject keyword category.
 - In the future I may decide to add an extra feature to delete all such emails.
+  > There were also emails that had a "sender" but no associated emails (like some no-reply emails)
+- In these cases it is much better to delete those specific emails using the subject keyword category.
+- In the future I may decide to add an extra feature to delete all such emails.
 
 ######################## UPDATE 10/30/2023  #############################
 I added a feature to delete by the name of the sender. The reason is that I noticed
@@ -80,8 +83,3 @@ I wanted to add a way to delete emails without having to select for all the diff
 
 In the future I am thinking of making a version of this program that can analyze the amount of emails
 sent by whom and the ability to delete by multiple email addresses/names as opposed to just one each time.
-=======
-  > There were also emails that had a "sender" but no associated emails (like some no-reply emails)
-- In these cases it is much better to delete those specific emails using the subject keyword category.
-- In the future I may decide to add an extra feature to delete all such emails.
-
