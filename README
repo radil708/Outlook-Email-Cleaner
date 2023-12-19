@@ -86,7 +86,9 @@ addresses are made up, but the effect is the same. In response to this,
 sent by whom and the ability to delete by multiple email addresses/names as opposed to just one each time.
 
 ######################## UPDATE 12/19/2023  #############################
-- I have been building a newer version of this program
+- I have been building a newer version of this program, so this program
+    will soon be deprecated. I will add a link to the new version once
+    I finish testing.
 - Currently working on testing it right now
 - The new version has more features like the email analysis I mentioned
 in the 10/30/2023 update and a user interface.
